@@ -9,12 +9,18 @@ jobs:
   build-ankiaddon:
     runs-on: ubuntu-latest
 
+    # Creating a release needs write access. New repositories default the
+    # workflow token to read-only, so without this the build succeeds and the
+    # release step fails.
+    permissions:
+      contents: write
+
     steps:
       - name: Set env
         shell: bash
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Create dist folder
         shell: bash
         run: |
@@ -27,7 +33,7 @@ jobs:
         shell: bash
         run: |
           cd src
-          zip -r ../dist/Migaku.ankiaddon . -x user_files/\* meta.json
+          zip -r ../dist/Migaku-Wayland.ankiaddon . -x user_files/\* meta.json
           cd ..
       - name: Upload artifacts
         uses: ncipollo/release-action@v1
