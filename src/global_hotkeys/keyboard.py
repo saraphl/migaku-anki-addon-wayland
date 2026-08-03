@@ -1,4 +1,5 @@
 import logging
+import time
 from aqt.qt import QObject, pyqtSignal
 from magicy.keyboard import Key, Listener
 
@@ -13,6 +14,14 @@ modifier_map = {
     Key.cmd: 1 << 3,
 }
 
+# A held key auto-repeats at roughly 25-40 Hz, and the listener sees a full
+# press for every tick. Presses of the same key closer together than this are
+# treated as repeats and ignored, so holding a hotkey fires its action once
+# instead of dozens of times. Releases clear the record, so deliberate
+# double-presses still work; the timeout only exists so a missed release
+# cannot wedge a key permanently.
+AUTO_REPEAT_TIMEOUT = 0.15
+
 
 class KeyboardHandler(QObject):
     key_pressed = pyqtSignal(KeySequence)
@@ -26,6 +35,7 @@ class KeyboardHandler(QObject):
         self.block_actions = False
         self.actions = {False: {}, True: {}}
         self.modifiers = 0
+        self.key_press_times = {}
 
         try:
             logger.info("Creating keyboard listener...")
@@ -49,6 +59,13 @@ class KeyboardHandler(QObject):
             self.modifiers |= modifier_map[raw_key]
         else:
             key = self.parse_raw_key(raw_key)
+
+            now = time.monotonic()
+            previous = self.key_press_times.get(key)
+            self.key_press_times[key] = now
+            if previous is not None and now - previous < AUTO_REPEAT_TIMEOUT:
+                return
+
             sequence = KeySequence(key, self.modifiers)
             self.key_pressed.emit(sequence)
             if not self.block_actions and sequence in self.actions[False]:
@@ -61,6 +78,7 @@ class KeyboardHandler(QObject):
             self.modifiers &= ~modifier_map[raw_key]
         else:
             key = self.parse_raw_key(raw_key)
+            self.key_press_times.pop(key, None)
             sequence = KeySequence(key, self.modifiers)
             self.key_released.emit(sequence)
             if not self.block_actions and sequence in self.actions[True]:
