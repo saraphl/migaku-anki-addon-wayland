@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AnkiWeb Preview</title>
+    <style>
+      :root {
+        color: #212529;
+        background: #fff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      a { color: #0d6efd; text-decoration: underline; }
+      img { vertical-align: middle; }
+
+      .navbar {
+        min-height: 56px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .navbar-inner,
+      .page {
+        width: 100%;
+        max-width: 1140px;
+        margin: 0 auto;
+        padding-right: 12px;
+        padding-left: 12px;
+      }
+
+      .navbar-inner {
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand {
+        color: #212529;
+        font-size: 20px;
+        text-decoration: none;
+      }
+
+      .nav-links { display: flex; gap: 24px; }
+      .nav-links span { color: rgba(0, 0, 0, .65); }
+      .page { padding-top: 28px; padding-bottom: 64px; }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 40px;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+
+      h2 {
+        margin: 30px 0 16px;
+        font-size: 32px;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+
+      h3 {
+        margin-top: 24px;
+        margin-bottom: 8px;
+        font-size: 28px;
+        font-weight: 500;
+        line-height: 1.2;
+      }
+
+      p { margin-top: 0; margin-bottom: 16px; }
+      ol { margin-top: 0; margin-bottom: 16px; padding-left: 32px; }
+      li { margin-bottom: 2px; }
+      dl { margin-top: 0; margin-bottom: 16px; }
+      dt { font-weight: 700; }
+      dd { margin-bottom: 8px; margin-left: 0; }
+
+      .page-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .page-heading h1 { margin-bottom: 0; }
+      .actions { display: flex; gap: 8px; }
+
+      .button {
+        display: inline-block;
+        padding: 6px 12px;
+        border: 1px solid #6c757d;
+        border-radius: 4px;
+        color: #6c757d;
+        background: #fff;
+        text-decoration: none;
+      }
+
+      .description {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .description > :first-child { margin-top: 0; }
+
+      @media (max-width: 767px) {
+        .navbar-inner { min-height: 52px; }
+        .nav-links { gap: 14px; font-size: 14px; }
+        .page { padding-top: 20px; }
+        h1 { font-size: 32px; }
+        h2 { font-size: 28px; }
+        h3 { font-size: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="navbar">
+      <nav class="navbar-inner" aria-label="Primary">
+        <span class="brand">AnkiWeb Preview</span>
+        <div class="nav-links">
+          <span>Decks</span>
+          <span>Add-ons</span>
+          <span>Log In</span>
+        </div>
+      </nav>
+    </header>
+
+    <main class="page">
+      <div class="page-heading">
+        <h1>Migaku Anki Add-on</h1>
+        <div class="actions">
+          <span class="button">Contact Author</span>
+          <span class="button">Rate This</span>
+        </div>
+      </div>
+
+      <h2>Description</h2>
+      <section id="ankiweb-description" class="description" aria-live="polite">Loading description…</section>
+    </main>
+
+    <script>
+      fetch("ankiweb.html", { cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) throw new Error(`Could not load ankiweb.html (${response.status})`)
+          return response.text()
+        })
+        .then((html) => {
+          const description = document.querySelector("#ankiweb-description")
+          const previewVersion = Date.now().toString()
+          description.innerHTML = html
+          description.querySelectorAll("img").forEach((image) => {
+            const source = new URL(image.src)
+            if (source.origin !== location.origin) return
+            source.searchParams.set("preview", previewVersion)
+            image.src = source
+          })
+        })
+        .catch((error) => { document.querySelector("#ankiweb-description").textContent = error.message })
+    </script>
+  </body>
+</html>

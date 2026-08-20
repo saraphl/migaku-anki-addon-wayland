@@ -6,6 +6,7 @@
     </svg>
 </div>
 
+<div class="migaku-card-shell">
 <div class="migaku-card migaku-card-back">
 
     <div class="migaku-card-screenshot">
@@ -13,21 +14,24 @@
     </div>
 
     <div class="migaku-card-content">
-        <div class="migaku-card-sentence-audio">
-            {{editable:Sentence Audio}}
+        <div class="migaku-card-audio-row">
+            <div class="migaku-card-sentence-audio">
+                {{editable:Sentence Audio}}
+            </div>
+            <div class="migaku-card-unknown-audio">
+                {{editable:Word Audio}}
+            </div>
         </div>
         <div class="migaku-card-sentence">
             <div class="field" data-popup="yes" data-gender-coloring="yes">{{editable:Sentence}}</div>
         </div>
-        <div class="migaku-card-translation">
-            {{editable:Translation}}
-        </div>
-        {{#Sentence}}
-            <hr class="sentence-separator">
-        {{/Sentence}}
-        <div class="migaku-card-unknown-audio migaku-indented">
-            {{editable:Word Audio}}
-        </div>
+        {{#Translation}}
+            <button class="UiButton migaku-translation-toggle" type="button" aria-expanded="false" aria-controls="migaku-card-translation">See Translation</button>
+            <div id="migaku-card-translation" class="migaku-card-translation" hidden>
+                {{editable:Translation}}
+            </div>
+        {{/Translation}}
+        <hr class="sentence-separator">
         <div class="migaku-card-unknown migaku-indented">
             <div class="field" data-popup="yes" data-gender-coloring="yes">{{editable:Target Word}}</div>
         </div>
@@ -48,46 +52,55 @@
 </div>
 
 
-<div class="migaku-typeselect">
+<button class="UiButton migaku-type-toggle" type="button" aria-expanded="false" aria-controls="migaku-typeselect">Change card type</button>
+
+<div id="migaku-typeselect" class="migaku-typeselect" hidden>
     <form>
-        <label>
-            <input type="radio" id="type-s" name="type" value="s">
-            Sentence
+        <label class="migaku-card-mode-control">
+            <span>Sentence</span>
+            <input type="checkbox" name="vocabulary" role="switch" aria-label="Use vocabulary card">
+            <span>Vocab</span>
         </label>
 
-        <label>
-            <input type="radio" id="type-v" name="type" value="v">
-            Vocabulary
-        </label>
-
-        <label>
-            <input type="radio" id="type-as" name="type" value="as">
-            Audio Sentence
-        </label>
-
-        <label>
-            <input type="radio" id="type-av" name="type" value="av">
-            Audio Vocabulary
+        <label class="migaku-audio-card-control">
+            <span>Audio card</span>
+            <input type="checkbox" name="audio" role="switch" aria-label="Use audio card">
         </label>
     </form>
 </div>
 
 <script>
+    const translationToggle = document.querySelector('.migaku-translation-toggle');
+    const translation = document.querySelector('.migaku-card-translation');
+    if (translationToggle && translation) {
+        translationToggle.addEventListener('click', () => {
+            translation.hidden = false;
+            translationToggle.remove();
+        });
+    }
+
+    const typeToggle = document.querySelector('.migaku-type-toggle');
+    const typeSelector = document.querySelector('.migaku-typeselect');
     if (typeof (pycmd) !== "undefined") {
         const form = document.querySelector('.migaku-typeselect form');
-
-        let card_type = `{{Is Vocabulary Card}}`.replace(/(<([^>]+)>)/ig, '').length ? 'v' : 's';
-        if (`{{Is Audio Card}}`.replace(/(<([^>]+)>)/ig, '').length) {
-            card_type = 'a' + card_type;
-        }
-        form.elements["type"].value = card_type;
-
-        form.onchange = function () {
-            const card_type = form.elements['type'].value;
-            pycmd('update_card_type|' + card_type);
-        }
+        const vocabularyToggle = form.elements['vocabulary'];
+        const audioToggle = form.elements['audio'];
+        const isVocabulary = `{{Is Vocabulary Card}}`.replace(/(<([^>]+)>)/ig, '').length;
+        const isAudio = `{{Is Audio Card}}`.replace(/(<([^>]+)>)/ig, '').length;
+        vocabularyToggle.checked = Boolean(isVocabulary);
+        audioToggle.checked = Boolean(isAudio);
+        const getCardType = () => (audioToggle.checked ? 'a' : '') + (vocabularyToggle.checked ? 'v' : 's');
+        form.onchange = () => pycmd('update_card_type|' + getCardType());
+        const setSelectorExpanded = (expanded) => {
+            typeSelector.hidden = !expanded;
+            typeToggle.textContent = expanded ? 'Dismiss' : 'Change card type';
+            typeToggle.setAttribute('aria-expanded', String(expanded));
+        };
+        typeToggle.addEventListener('click', () => setSelectorExpanded(typeSelector.hidden));
     }
     else {
-        document.querySelector('.migaku-typeselect').style.display = 'none';
+        typeToggle.hidden = true;
+        typeSelector.hidden = true;
     }
 </script>
+</div>

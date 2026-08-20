@@ -1,0 +1,832 @@
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+main.container {
+  margin: 0px;
+  padding: 80px 16px 120px;
+  width: 100%;
+  height: 100vh;
+  background: #ede3ff;
+}
+
+main.container #qa {
+  margin-top: 0px;
+  height: 100%;
+}
+
+.card > #qa {
+  --migaku-card-viewport-gutter: clamp(16px, calc((100vw - 760px) / 2), 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: var(--migaku-card-viewport-gutter) 16px;
+  min-height: 100vh;
+}
+
+main.container .migaku-card,
+.card > #qa > .migaku-card,
+.card > #qa > .migaku-card-shell > .migaku-card {
+  flex: 1;
+}
+
+.migaku-card-shell {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto 16px;
+  padding-bottom: 64px;
+}
+
+main.container .migaku-card audio {
+  width: 150px;
+}
+
+#content {
+  margin: 0px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.card,
+.card * {
+  box-sizing: border-box;
+  padding: 0px;
+  margin: 0px;
+  font-family: cardFont, sans-serif;
+}
+
+.card {
+  background: #ede3ff;
+  font-size: 18px;
+  font-smooth: always;
+  color: rgb(0, 0, 90);
+  height: 100%;
+  width: 100%;
+}
+
+.migaku-header {
+  display: none;
+}
+
+.migaku-card,
+.migaku-typeselect {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: left;
+  background: #fff;
+  border-radius: 24px;
+}
+
+.migaku-card,
+.migaku-typeselect,
+.UiButton {
+  box-shadow: 0 9px 20px rgba(0 0 90 / 14%), 0 3.76px 8.3555px rgba(0 0 90 / 8.3%), 0 2.0103px 4.4673px rgba(0 0 90 / 5%), 0 1.1269px 2.5043px rgba(0 0 90 / 2.6%), 0 .5985px 1.33px rgba(0 0 90 / .8%);
+}
+
+.migaku-card {
+  padding: 24px 16px 8px;
+}
+
+.migaku-card-back {
+  display: flex;
+  flex-flow: row wrap;
+  align-content: flex-start;
+  align-items: center;
+  justify-content: center;
+  column-gap: 16px;
+}
+
+.migaku-card-front .migaku-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+  font-size: 32px;
+}
+
+.migaku-card-back .migaku-card-content {
+  display: contents;
+}
+
+.migaku-card-back .migaku-card-content > :not(.migaku-card-images) {
+  max-width: calc(100% - 30px);
+}
+
+.migaku-card-back .migaku-card-content::before,
+.migaku-card-back .migaku-card-content::after {
+  content: "";
+  flex: 0 0 100%;
+  height: 15px;
+}
+
+.migaku-card-back .migaku-card-content::before {
+  order: 0;
+}
+
+.migaku-card-back .migaku-card-content::after {
+  order: 13;
+}
+
+.migaku-indented {
+  margin-left: 5%;
+}
+
+.sentence-separator {
+  order: 7;
+  width: 100%;
+  margin: 8px 0;
+  border: 0;
+  border-top: 1px solid;
+  border-color: rgba(0 0 90 / 15%);
+}
+
+.migaku-card-front .migaku-card-sentence {
+  font-size: 32px;
+  text-align: center;
+  width: 100%;
+  margin: 0;
+}
+
+.migaku-card-front .migaku-card-unknown {
+  margin: 0;
+  font-size: 46px;
+}
+
+.migaku-card-back .migaku-card-unknown {
+  order: 1;
+  font-size: 46px;
+  text-align: center;
+  width: 100%;
+  margin: 0 0 8px;
+}
+
+.migaku-card-back .migaku-card-sentence {
+  order: 2;
+  font-size: 32px;
+  text-align: center;
+  width: 100%;
+}
+
+.migaku-card-back .migaku-card-sentence-alternate {
+  order: 3;
+  text-align: center;
+  width: 100%;
+}
+
+.migaku-card-examples {
+  color: inherit;
+}
+
+.migaku-translation-toggle,
+.migaku-card-back .migaku-card-translation {
+  order: 5;
+  height: 34px;
+  min-height: 34px;
+  margin: 16px auto;
+  padding: 8px 16px;
+  font-size: .875rem;
+  line-height: 1.25;
+}
+
+.migaku-card-back .migaku-card-translation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  color: rgba(0 0 90 / 60%);
+  text-align: center;
+  width: 100%;
+}
+
+.migaku-card-back .migaku-card-translation[hidden] {
+  display: none;
+}
+
+.migaku-card-back .migaku-card-audio-row {
+  order: 4;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  margin: 8px 0;
+}
+
+.migaku-card-back .migaku-card-sentence-audio,
+.migaku-card-back .migaku-card-unknown-audio {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 4px;
+}
+
+.migaku-card-back .migaku-translation-toggle {
+  align-self: center;
+}
+
+.migaku-card-back .migaku-card-screenshot,
+.migaku-card-back .migaku-card-images {
+  display: flex;
+  flex: 0 0 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  order: 11;
+}
+
+.migaku-card-screenshot br,
+.migaku-card-images br {
+  display: none;
+}
+
+.migaku-card-back .migaku-card-screenshot {
+  order: 11;
+}
+
+.migaku-card-back .migaku-card-images {
+  order: 12;
+}
+
+.migaku-card-back .migaku-card-screenshot img,
+.migaku-card-back .migaku-card-images img {
+  flex: 1 1 300px;
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  margin-top: 16px;
+  border-radius: 16px;
+}
+
+.migaku-card-examples,
+.migaku-card-definitions {
+  margin-bottom: 15px;
+}
+
+.migaku-card-back .migaku-card-definitions {
+  order: 8;
+  width: 100%;
+}
+
+.migaku-card-back .migaku-card-examples {
+  order: 9;
+  width: 100%;
+}
+
+.migaku-card-back .migaku-card-notes {
+  order: 10;
+  width: 100%;
+}
+
+.migaku-card-sentence,
+.migaku-card-unknown,
+.migaku-card-translation,
+.migaku-card-examples,
+.migaku-card-definitions,
+.migaku-card-notes {
+  word-break: break-word;
+}
+
+.dict-form {
+  white-space: nowrap;
+  word-break: normal;
+}
+
+ruby {
+  ruby-align: center;
+}
+
+.UiButton {
+  appearance: none;
+  cursor: pointer;
+  user-select: none;
+  color: inherit;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  position: relative;
+  display: inline-flex;
+  min-height: 34px;
+  background: none;
+  border-width: 0px;
+  border-style: none;
+  border-color: currentcolor;
+  border-image: none;
+  gap: 4px;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 20px;
+}
+
+.migaku-translation-toggle {
+  background: #fff;
+  font-weight: 700;
+}
+
+.migaku-card-shell > .migaku-type-toggle {
+  position: static;
+  align-self: center;
+  min-height: auto;
+  margin: 4px auto 0;
+  padding: 4px;
+  transform: none;
+  color: rgba(0 0 90 / 60%);
+  background: transparent;
+  box-shadow: none;
+  font-size: 0;
+  font-weight: 400;
+  opacity: .5;
+  white-space: nowrap;
+  transition: opacity 120ms ease;
+}
+
+.migaku-card-shell > .migaku-type-toggle::after {
+  content: "Customize front of card";
+  font-size: 1rem;
+}
+
+.migaku-card-shell > .migaku-type-toggle[aria-expanded="true"]::after {
+  content: "Dismiss";
+}
+
+.migaku-card-shell > .migaku-type-toggle:hover {
+  opacity: 1;
+}
+
+.migaku-card-shell > .migaku-type-toggle[hidden],
+.migaku-card-shell > .migaku-typeselect[hidden] {
+  display: none;
+}
+
+.migaku-card-shell > .migaku-typeselect {
+  position: static;
+  margin: 8px auto 0;
+  padding: 16px;
+  transform: none;
+  text-align: center;
+}
+
+.migaku-typeselect {
+  --migaku-selected-tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238c7bd6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m20 6-11 11-5-5'/%3E%3C/svg%3E");
+  --migaku-unselected-tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238c7bd6' stroke-opacity='0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m20 6-11 11-5-5'/%3E%3C/svg%3E");
+}
+
+.migaku-typeselect form {
+  display: grid;
+  grid-template-areas:
+    "section-title section-title"
+    "card-mode audio"
+    "section-disclaimer section-disclaimer";
+  grid-template-columns: auto auto;
+  align-items: flex-start;
+  justify-content: center;
+  column-gap: 40px;
+  row-gap: 12px;
+}
+
+.migaku-typeselect form::before {
+  grid-area: section-title;
+  content: "Customize front of card";
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.migaku-typeselect form::after {
+  grid-area: section-disclaimer;
+  content: 'These toggles control the "Is Vocab Card" and "Is Audio Card" fields.\A These values determine what is shown on the front of the card when you are reviewing.';
+  max-width: 640px;
+  justify-self: center;
+  color: rgba(0 0 90 / 60%);
+  font-size: .75rem;
+  line-height: 1.4;
+  white-space: pre-line;
+  text-align: center;
+}
+
+.migaku-card-mode-control {
+  grid-area: card-mode;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  column-gap: 8px;
+  row-gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.migaku-card-mode-control::before {
+  flex: 0 0 100%;
+  content: "Which field is on the front:";
+  font-size: 1rem;
+  text-align: center;
+}
+
+.migaku-card-mode-control span {
+  display: flex;
+  align-items: center;
+  width: auto;
+  min-height: 24px;
+  white-space: nowrap;
+  color: rgba(0 0 90 / 60%);
+  font-size: .875rem;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.migaku-card-mode-control span::before {
+  content: "";
+  flex: 0 0 16px;
+  width: 16px;
+  height: 14px;
+  background-image: var(--migaku-unselected-tick);
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
+.migaku-audio-card-control {
+  grid-area: audio;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  column-gap: 8px;
+  row-gap: 4px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.migaku-audio-card-control > span {
+  order: 0;
+  flex: 0 0 100%;
+  font-size: 0;
+  text-align: center;
+}
+
+.migaku-audio-card-control > span::after {
+  content: "Text or audio on the front:";
+  font-size: 1rem;
+}
+
+.migaku-audio-card-control::before,
+.migaku-audio-card-control::after {
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  min-height: 24px;
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+  color: rgba(0 0 90 / 60%);
+  font-size: .875rem;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.migaku-audio-card-control::before {
+  order: 1;
+  content: "Text";
+  background-image: var(--migaku-unselected-tick);
+}
+
+.migaku-audio-card-control input {
+  order: 2;
+}
+
+.migaku-audio-card-control::after {
+  order: 3;
+  content: "Audio";
+  background-image: var(--migaku-unselected-tick);
+}
+
+/* Older supported Anki WebEngines omit decorative ticks and rely on the switch.
+ * Newer Chromium versions enhance the selected label without changing layout. */
+@supports selector(.migaku-card-mode-control:has(input:checked)) {
+  .migaku-card-mode-control:not(:has(input:checked)) span:first-child::before,
+  .migaku-card-mode-control:has(input:checked) span:last-child::before,
+  .migaku-audio-card-control:not(:has(input:checked))::before,
+  .migaku-audio-card-control:has(input:checked)::after {
+    background-image: var(--migaku-selected-tick);
+  }
+}
+
+.migaku-typeselect input[type="checkbox"] {
+  appearance: none;
+  position: relative;
+  width: 44px;
+  height: 24px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(0 0 90 / 18%);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.migaku-typeselect input[type="checkbox"]::before {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0 0 90 / 20%);
+  content: "";
+  transition: transform 120ms ease;
+}
+
+.migaku-typeselect input[type="checkbox"]:checked {
+  background: #6750a4;
+}
+
+.migaku-typeselect input[type="checkbox"]:checked::before {
+  transform: translateX(20px);
+}
+
+@media only screen and (max-width: 520px) {
+  .migaku-card-front .migaku-card-unknown,
+  .migaku-card-back .migaku-card-unknown {
+    font-size: 40px;
+  }
+
+  .migaku-card-front .migaku-card-sentence,
+  .migaku-card-back .migaku-card-sentence {
+    font-size: 28px;
+  }
+
+  .migaku-typeselect form {
+    grid-template-areas:
+      "section-title"
+      "card-mode"
+      "audio"
+      "section-disclaimer";
+    grid-template-columns: 1fr;
+  }
+
+  .migaku-audio-card-control {
+    margin-top: 12px;
+  }
+}
+
+.ankidroid_dark_mode.card,
+.nightMode.card {
+  color: #fff;
+  background: #0a002a;
+}
+
+.ankidroid_dark_mode main.container,
+.nightMode main.container {
+  background: #0a002a;
+}
+
+.ankidroid_dark_mode .migaku-card-examples,
+.nightMode.card .migaku-card-examples {
+  color: inherit;
+}
+
+.ankidroid_dark_mode .migaku-card,
+.nightMode .migaku-card,
+.ankidroid_dark_mode .migaku-typeselect,
+.nightMode .migaku-typeselect {
+  background: #202047;
+}
+
+.ankidroid_dark_mode .migaku-card,
+.nightMode .migaku-card,
+.ankidroid_dark_mode .migaku-typeselect,
+.nightMode .migaku-typeselect,
+.ankidroid_dark_mode .UiButton,
+.nightMode .UiButton {
+  box-shadow: 0 9px 20px rgb(0 0 0 / 18%), 0 3.76px 8.3556px rgb(0 0 0 / 14.4%), 0 2.0103px 4.4673px rgb(0 0 0 / 8.11%), 0 1.127px 2.5043px rgb(0 0 0 / 3.63%), 0 .5985px 1.33px rgb(0 0 0 / 2.8%);
+}
+
+.ankidroid_dark_mode .sentence-separator,
+.nightMode .sentence-separator {
+  border-color: rgba(255 255 255 / 19%);
+}
+
+.ankidroid_dark_mode .migaku-translation-toggle,
+.nightMode .migaku-translation-toggle {
+  background: #2b2b60;
+}
+
+.ankidroid_dark_mode .migaku-card-shell > .migaku-type-toggle,
+.nightMode .migaku-card-shell > .migaku-type-toggle {
+  box-shadow: none;
+}
+
+.ankidroid_dark_mode .migaku-card-translation,
+.nightMode .migaku-card-translation,
+.ankidroid_dark_mode .migaku-typeselect form::after,
+.nightMode .migaku-typeselect form::after,
+.ankidroid_dark_mode .migaku-type-toggle,
+.nightMode .migaku-type-toggle,
+.ankidroid_dark_mode .migaku-card-mode-control span,
+.nightMode .migaku-card-mode-control span,
+.ankidroid_dark_mode .migaku-audio-card-control::before,
+.nightMode .migaku-audio-card-control::before,
+.ankidroid_dark_mode .migaku-audio-card-control::after,
+.nightMode .migaku-audio-card-control::after {
+  color: rgba(255 255 255 / 60%);
+}
+
+.ankidroid_dark_mode .migaku-typeselect input[type="checkbox"],
+.nightMode .migaku-typeselect input[type="checkbox"] {
+  background: rgba(255 255 255 / 19%);
+}
+
+.ankidroid_dark_mode .migaku-typeselect input[type="checkbox"]:checked,
+.nightMode .migaku-typeselect input[type="checkbox"]:checked {
+  background: #8c7bd6;
+}
+
+.migaku-card-sentence-audio .replay-button,
+.migaku-card-unknown-audio .replay-button {
+  appearance: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 20px;
+  background: #ede3ff;
+  color: #672fc3;
+  font-size: 0;
+  line-height: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transform: scale(1);
+  transition: transform 125ms ease;
+}
+
+.migaku-card-sentence-audio .replay-button {
+  width: 65px;
+}
+
+.migaku-card-unknown-audio .replay-button {
+  width: 40px;
+}
+
+.migaku-card-sentence-audio .replay-button svg,
+.migaku-card-unknown-audio .replay-button svg,
+.migaku-card-sentence-audio .playImage,
+.migaku-card-unknown-audio .playImage {
+  display: none !important;
+}
+
+.migaku-card-sentence-audio .replay-button::before,
+.migaku-card-unknown-audio .replay-button::before {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  background: currentcolor;
+  content: "";
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.5 16H6a4 4 0 0 1 0-8h.5l1.573-3.146A1.545 1.545 0 0 1 11 5.545v12.91a1.545 1.545 0 0 1-2.927.69zM13 5a1 1 0 0 1 1-1 8 8 0 1 1 0 16 1 1 0 1 1 0-2 6 6 0 0 0 0-12 1 1 0 0 1-1-1M14 8a1 1 0 1 0 0 2 2 2 0 1 1 0 4 1 1 0 1 0 0 2 4 4 0 0 0 0-8'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.5 16H6a4 4 0 0 1 0-8h.5l1.573-3.146A1.545 1.545 0 0 1 11 5.545v12.91a1.545 1.545 0 0 1-2.927.69zM13 5a1 1 0 0 1 1-1 8 8 0 1 1 0 16 1 1 0 1 1 0-2 6 6 0 0 0 0-12 1 1 0 0 1-1-1M14 8a1 1 0 1 0 0 2 2 2 0 1 1 0 4 1 1 0 1 0 0 2 4 4 0 0 0 0-8'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.migaku-card-sentence-audio .replay-button::after {
+  width: 22px;
+  height: 13px;
+  flex: 0 0 22px;
+  border-radius: 3px;
+  background:
+    linear-gradient(currentcolor, currentcolor) 0 0 / 80% 3px no-repeat,
+    linear-gradient(currentcolor, currentcolor) 0 5px / 100% 3px no-repeat,
+    linear-gradient(currentcolor, currentcolor) 0 10px / 70% 3px no-repeat;
+  content: "";
+}
+
+.migaku-card-sentence-audio .replay-button:focus:not(:focus-visible)::after {
+  animation: migaku-audio-sentence-lines ease-in-out 3s;
+}
+
+.migaku-card-unknown-audio .replay-button::after {
+  position: absolute;
+  inset: 0;
+  border: 2px solid currentcolor;
+  border-radius: 50%;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+.migaku-card-unknown-audio .replay-button:focus:not(:focus-visible)::after {
+  animation: migaku-audio-progress-circle linear 3s;
+}
+
+.migaku-card-sentence-audio .replay-button:active::after,
+.migaku-card-unknown-audio .replay-button:active::after {
+  animation: none;
+}
+
+.ankidroid_dark_mode .migaku-card-sentence-audio .replay-button,
+.nightMode .migaku-card-sentence-audio .replay-button,
+.ankidroid_dark_mode .migaku-card-unknown-audio .replay-button,
+.nightMode .migaku-card-unknown-audio .replay-button {
+  background: #493085;
+  color: #b272ff;
+}
+
+@media (hover: hover) {
+  .migaku-card-sentence-audio .replay-button:hover,
+  .migaku-card-unknown-audio .replay-button:hover {
+    transform: scale(1.075);
+  }
+
+  .migaku-card-sentence-audio .replay-button:active,
+  .migaku-card-unknown-audio .replay-button:active {
+    transform: scale(1);
+  }
+}
+
+@media (hover: none) {
+  .migaku-card-sentence-audio .replay-button:active,
+  .migaku-card-unknown-audio .replay-button:active {
+    transform: scale(.925);
+  }
+}
+
+@keyframes migaku-audio-sentence-lines {
+  0% {
+    opacity: 0;
+    background-size: 0 3px, 0 3px, 0 3px;
+  }
+
+  33% {
+    opacity: 1;
+    background-size: 80% 3px, 0 3px, 0 3px;
+  }
+
+  66% {
+    background-size: 80% 3px, 100% 3px, 0 3px;
+  }
+
+  100% {
+    background-size: 80% 3px, 100% 3px, 70% 3px;
+  }
+}
+
+@keyframes migaku-audio-progress-circle {
+  0% {
+    opacity: 1;
+    clip-path: polygon(50% 0%, 50% 50%, 50% 0%, 50% 0%, 50% 0%, 50% 0%, 50% 0%);
+  }
+
+  12.5% {
+    opacity: 1;
+    clip-path: polygon(50% 0%, 50% 50%, 100% 0%, 100% 0%, 100% 0%, 100% 0%, 100% 0%);
+  }
+
+  37.5% {
+    opacity: 1;
+    clip-path: polygon(50% 0%, 50% 50%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 0%);
+  }
+
+  62.5% {
+    opacity: 1;
+    clip-path: polygon(50% 0%, 50% 50%, 0% 100%, 0% 100%, 0% 100%, 100% 100%, 100% 0%);
+  }
+
+  87.5% {
+    opacity: 1;
+    clip-path: polygon(50% 0%, 50% 50%, 0% 0%, 0% 0%, 0% 100%, 100% 100%, 100% 0%);
+  }
+
+  100% {
+    opacity: 0;
+    clip-path: polygon(50% 0%, 50% 50%, 50% 0%, 0% 0%, 0% 100%, 100% 100%, 100% 0%);
+  }
+}
+
+t {
+  font-weight: bold;
+}
+
+@media only screen and (max-width: 768px) {
+  main.container {
+    padding-top: 16px;
+  }
+
+  .migaku-card,
+  .migaku-typeselect {
+    width: 100%;
+  }
+}

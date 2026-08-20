@@ -1,7 +1,7 @@
 import re
 import os
 import shutil
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 
 import aqt
 from anki.models import NotetypeDict
@@ -14,7 +14,9 @@ NOTE_TYPE_PREFIX = "Migaku "
 NOTE_TYPE_MARK_CSS = "/* Managed Migaku Note Type */"
 
 FIELD_RE = re.compile(
-    r"<div class=\"field\" (.*?)>{{(?!#|/|\^|FrontSide|Tags)(.*?)}}</div>|{{(?!#|/|\^|FrontSide|Tags)(.*?)}}"
+    r"<div class=\"field(?P<classes>[^\"]*)\"\s*(?P<settings>.*?)>"
+    r"{{(?!#|/|\^|FrontSide|Tags)(?P<div_field>.*?)}}</div>"
+    r"|{{(?!#|/|\^|FrontSide|Tags)(?P<bare_field>.*?)}}"
 )
 SETTINGS_RE = re.compile(r"data-(.*?)=\"(.*?)\"")
 FORMAT_RE = re.compile(
@@ -111,15 +113,20 @@ def nt_update(nt: NotetypeDict, lang: Language, commit=True) -> None:
     # Set template html
     if template:
         for fmt, html_name in [("qfmt", "front.html"), ("afmt", "back.html")]:
-            fields_settings = nt_get_tmpl_fields_settings(nt, template_idx, fmt)
-
             # The base template is always reset to the default:
             # User may not change it, except for setting Migaku Options which are applied by the nt_set_tmpl_lang call below
             if is_base_tmpl:
                 html_path = lang.file_path("card", html_name)
                 with open(html_path, "r", encoding="utf-8") as file:
                     html = file.read()
+                fields_settings = nt_migrate_tmpl_fields_settings(
+                    nt["tmpls"][template_idx][fmt], html
+                )
                 nt["tmpls"][template_idx][fmt] = html
+            else:
+                fields_settings = nt_get_tmpl_fields_settings(
+                    nt, template_idx, fmt
+                )
 
             nt_set_tmpl_lang(
                 nt,
@@ -134,7 +141,8 @@ def nt_update(nt: NotetypeDict, lang: Language, commit=True) -> None:
     # Set template css
     nt_set_css_lang(nt, lang, commit=False)
 
-    # Copy media files
+    # Copy media files additively. Do not delete older collection media here:
+    # customized note types can retain references to legacy asset filenames.
     media_dir = lang.file_path("card", "media")
     if os.path.exists(media_dir):
         for fname in os.listdir(media_dir):
@@ -184,7 +192,9 @@ def nt_set_tmpl_lang(
     lang: Optional[Language],
     tmpl_idx: int,
     fmt: str,
-    fields_settings: List[Dict[str, str]],
+    fields_settings: Union[
+        List[Dict[str, str]], Dict[str, Dict[str, str]]
+    ],
     settings_mismatch_ignore=False,
     commit=True,
 ) -> None:
@@ -200,7 +210,11 @@ def nt_set_tmpl_lang(
 
     skip_field_replacement = False
 
-    if len(fields_settings) != field_count:
+    settings_by_name = isinstance(fields_settings, dict)
+
+    if settings_by_name and not fields_settings:
+        skip_field_replacement = True
+    elif not settings_by_name and len(fields_settings) != field_count:
         if settings_mismatch_ignore:
             skip_field_replacement = True
         else:
@@ -216,24 +230,40 @@ def nt_set_tmpl_lang(
             if not match:
                 break
 
-            d2 = match.group(2)
-            d3 = match.group(3)
+            field_name = match.group("bare_field")
+            field_classes = ""
 
-            if not d3:
-                field_name = d2
+            if field_name is None:
+                field_name = match.group("div_field")
+                field_classes = match.group("classes")
+
+            if settings_by_name:
+                if field_name not in fields_settings:
+                    text_i = match.end()
+                    continue
+                field_settings = fields_settings[field_name]
             else:
-                field_name = d3
-
-            field_settings = fields_settings[field_i]
+                field_settings = fields_settings[field_i]
 
             field_active = len(field_settings) > 0
 
 
             if field_active:
-                field_replace = '<div class="field"'
+                field_replace = '<div class="field' + field_classes + '"'
                 for k, v in field_settings.items():
                     field_replace += " data-" + k + '="' + v + '"'
                 field_replace += ">{{" + field_name + "}}</div>"
+            elif field_classes:
+                # The field carries card layout classes from the shipped
+                # template. Keep the div so the card design survives even
+                # when no Migaku settings are active on the field.
+                field_replace = (
+                    '<div class="field'
+                    + field_classes
+                    + '">{{'
+                    + field_name
+                    + "}}</div>"
+                )
             else:
                 field_replace = "{{" + field_name + "}}"
 
@@ -241,7 +271,8 @@ def nt_set_tmpl_lang(
                 fmt_data[: match.start()] + field_replace + fmt_data[match.end() :]
             )
             text_i = match.start() + len(field_replace)
-            field_i += 1
+            if not settings_by_name:
+                field_i += 1
 
     # Insert Formatting
     if lang:
@@ -260,24 +291,19 @@ def nt_set_tmpl_lang(
         nt_mgr.update_dict(nt)
 
 
-def nt_get_tmpl_fields_settings(
-    nt: NotetypeDict, tmpl_idx: int, fmt: str, field_names: bool = False
-):
-    fmt_data = nt["tmpls"][tmpl_idx][fmt]
+def tmpl_get_fields_settings(fmt_data: str, field_names: bool = False):
     fmt_data = FORMAT_RE.sub("", fmt_data)
-
-    matches = FIELD_RE.findall(fmt_data)
 
     ret = []
 
-    for d1, d2, d3 in matches:
+    for match in FIELD_RE.finditer(fmt_data):
         field_settings = {}
-        if not d3:
-            field_name = d2
-            for key, value in SETTINGS_RE.findall(d1):
+        field_name = match.group("bare_field")
+
+        if field_name is None:
+            field_name = match.group("div_field")
+            for key, value in SETTINGS_RE.findall(match.group("settings")):
                 field_settings[key] = value
-        else:
-            field_name = d3
 
         if field_names:
             ret.append((field_name, field_settings))
@@ -285,6 +311,42 @@ def nt_get_tmpl_fields_settings(
             ret.append(field_settings)
 
     return ret
+
+
+def nt_get_tmpl_fields_settings(
+    nt: NotetypeDict, tmpl_idx: int, fmt: str, field_names: bool = False
+):
+    return tmpl_get_fields_settings(
+        nt["tmpls"][tmpl_idx][fmt], field_names=field_names
+    )
+
+
+def nt_migrate_tmpl_fields_settings(
+    current_fmt: str, next_fmt: str
+) -> Dict[str, Dict[str, str]]:
+    current_settings = dict(
+        tmpl_get_fields_settings(current_fmt, field_names=True)
+    )
+    next_settings = dict(tmpl_get_fields_settings(next_fmt, field_names=True))
+
+    sentence_field = "editable:Sentence"
+    word_audio_field = "editable:Word Audio"
+    sentence_settings = current_settings.get(sentence_field, {})
+    word_audio_settings = current_settings.get(word_audio_field, {})
+    next_sentence_settings = next_settings.get(sentence_field, {})
+    next_word_audio_settings = next_settings.get(word_audio_field, {})
+
+    settings_were_shifted = (
+        not sentence_settings
+        and bool(word_audio_settings)
+        and word_audio_settings == next_sentence_settings
+        and not next_word_audio_settings
+    )
+    if settings_were_shifted:
+        current_settings[sentence_field] = word_audio_settings
+        current_settings[word_audio_field] = {}
+
+    return current_settings
 
 
 def nt_was_installed(nt: NotetypeDict) -> bool:

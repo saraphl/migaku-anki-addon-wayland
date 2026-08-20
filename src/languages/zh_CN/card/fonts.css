@@ -1,0 +1,67 @@
+/* Migaku UI default: Noto Sans SC */
+/* Canonical variable: $font-zh-cn in packages/ui/src/styles/scss/_variables.scss. */
+/* Imported from packages/ui/src/styles/scss/fonts/noto-sans-sc.scss. */
+
+@font-face {
+  font-family: cardFont;
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/_migaku-card-noto-sans-sc-noto-sans-sc-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: cardFont;
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/_migaku-card-noto-sans-sc-noto-sans-sc-chinese-simplified-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: cardFont;
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url('/_migaku-card-noto-sans-sc-noto-sans-sc-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: cardFont;
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url('/_migaku-card-noto-sans-sc-noto-sans-sc-chinese-simplified-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: cardFont;
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('/_migaku-card-noto-sans-sc-noto-sans-sc-latin-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: cardFont;
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('/_migaku-card-noto-sans-sc-noto-sans-sc-chinese-simplified-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: cardFont;
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url('/_migaku-card-noto-sans-sc-noto-sans-sc-latin-900-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: cardFont;
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url('/_migaku-card-noto-sans-sc-noto-sans-sc-chinese-simplified-900-normal.woff2') format('woff2');
+}
