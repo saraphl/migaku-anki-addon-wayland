@@ -20,7 +20,19 @@ const chromePaths = [
 ].filter(Boolean)
 
 const wait = (duration) => new Promise((resolve) => setTimeout(resolve, duration))
-const removeDirectory = (path) => (fs.rmSync || fs.rmdirSync)(path, { recursive: true, force: true })
+const removeDirectory = async (path) => {
+  const remove = fs.rmSync || fs.rmdirSync
+  for (const attempt of Array(50).keys()) {
+    try {
+      remove(path, { recursive: true, force: true })
+      return
+    } catch (error) {
+      if (!['EBUSY', 'ENOTEMPTY', 'EPERM'].includes(error.code)) throw error
+      await wait(100)
+    }
+  }
+  throw new Error(`Could not remove temporary directory: ${path}`)
+}
 const withTimeout = (promise, duration, message) => new Promise((resolve, reject) => {
   const timeout = setTimeout(() => reject(new Error(message)), duration)
   promise.then(
@@ -77,7 +89,7 @@ const waitForServer = async (url) => {
 }
 
 const waitForPage = async (port, previewUrl) => {
-  for (const attempt of Array(100).keys()) {
+  for (const attempt of Array(400).keys()) {
     try {
       const { body } = await getResponse(`http://127.0.0.1:${port}/json/list`)
       const pages = JSON.parse(body)
@@ -140,6 +152,15 @@ const waitForCard = async (client) => {
     return { frame: Boolean(frame), src: frame?.src, body: frame?.contentDocument?.body?.innerText?.slice(0, 200) }
   })()`)
   throw new Error(`Card preview iframe did not render the type toggle: ${JSON.stringify(details)}`)
+}
+
+const waitForSelector = async (client, selector) => {
+  for (const attempt of Array(400).keys()) {
+    const ready = await evaluate(client, `Boolean(document.querySelector(${JSON.stringify(selector)}))`)
+    if (ready) return
+    await wait(50)
+  }
+  throw new Error(`Card preview did not render ${selector}`)
 }
 
 const getLayout = (client) => evaluate(client, `(() => {
@@ -293,6 +314,8 @@ const run = async () => {
     await waitForServer(previewUrl)
     const chrome = startProcess(chromePath, [
       '--headless=new',
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
       '--disable-gpu',
       '--no-first-run',
       '--no-default-browser-check',
@@ -306,6 +329,7 @@ const run = async () => {
       const client = await withTimeout(connect(page.webSocketDebuggerUrl), 5000, 'Chrome DevTools connection timed out')
       try {
       await client.send('Runtime.enable')
+      await waitForSelector(client, '#side')
       await evaluate(client, `(() => {
         const side = document.querySelector('#side')
         side.value = 'back'
@@ -329,7 +353,7 @@ const run = async () => {
     try {
       await stopProcess(previewServer.childProcess)
     } finally {
-      removeDirectory(profile)
+      await removeDirectory(profile)
     }
   }
 }

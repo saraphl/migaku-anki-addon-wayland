@@ -25,6 +25,9 @@ const ankidroid = renderCardDocument({
   side: "back",
   theme: "ankidroid",
 });
+const translationRule = light.match(
+  /\.migaku-card-back \.migaku-card-translation\s*\{[^}]*\}/s,
+)[0];
 const japanese = renderCardDocument({
   fixtureName: "syntax",
   language: "ja",
@@ -109,6 +112,18 @@ assert.match(
 );
 assert.match(
   light,
+  /\.migaku-card-sentence-audio \.replay-button,\s*\.migaku-card-unknown-audio \.replay-button\s*\{[^}]*box-sizing: border-box;/s,
+);
+assert.match(
+  light,
+  /\.migaku-card-sentence-audio \.replay-button::before,\s*\.migaku-card-unknown-audio \.replay-button::before\s*\{[^}]*position: absolute;[^}]*top: 50%;[^}]*left: 8px;[^}]*transform: translateY\(-50%\);/s,
+);
+assert.match(
+  light,
+  /\.migaku-card-sentence-audio \.replay-button::after\s*\{[^}]*position: absolute;[^}]*top: 50%;[^}]*right: 8px;[^}]*transform: translateY\(-50%\);/s,
+);
+assert.match(
+  light,
   /\.UiButton\s*\{[^}]*appearance: none;[^}]*display: inline-flex;[^}]*min-height: 34px;[^}]*padding: 8px 16px;[^}]*border-radius: 20px;/s,
 );
 assert.match(
@@ -147,11 +162,23 @@ assert.match(
 );
 assert.match(
   light,
-  /\.migaku-translation-toggle,\s*\.migaku-card-back \.migaku-card-translation\s*\{[^}]*order: 5;[^}]*height: 34px;[^}]*min-height: 34px;[^}]*margin: 16px auto;[^}]*padding: 8px 16px;[^}]*font-size: \.875rem;[^}]*line-height: 1\.25;/s,
+  /\.migaku-translation-toggle\s*\{[^}]*order: 5;[^}]*height: 34px;[^}]*min-height: 34px;[^}]*margin: 16px auto;[^}]*padding: 8px 16px;[^}]*font-size: \.875rem;[^}]*line-height: 1\.25;/s,
 );
 assert.match(
   light,
-  /\.migaku-card-back \.migaku-card-translation\s*\{[^}]*display: flex;[^}]*align-items: center;[^}]*justify-content: center;[^}]*overflow-y: auto;[^}]*color: rgba\(0 0 90 \/ 60%\);/s,
+  /\.migaku-card-back \.migaku-card-translation\s*\{[^}]*order: 5;[^}]*min-height: 34px;[^}]*margin: 16px auto;[^}]*padding: 8px 16px;[^}]*font-size: \.875rem;[^}]*line-height: 1\.25;/s,
+);
+assert.doesNotMatch(
+  translationRule,
+  /\n  height: 34px;/,
+);
+assert.doesNotMatch(
+  translationRule,
+  /overflow-y:/,
+);
+assert.match(
+  translationRule,
+  /display: flex;[^}]*align-items: center;[^}]*justify-content: center;[^}]*color: rgba\(0 0 90 \/ 60%\);/s,
 );
 assert.match(
   light,
@@ -161,7 +188,19 @@ assert.match(
   light,
   /\.sentence-separator\s*\{[^}]*order: 7;[^}]*margin: 8px 0;[^}]*border-color: rgba\(0 0 90 \/ 15%\);/s,
 );
-assert.match(light, /\.migaku-card-back \.migaku-card-definitions\s*\{[^}]*order: 8;[^}]*width: 100%;/s);
+assert.match(light, /\.migaku-card-back \.migaku-card-definitions\s*\{[^}]*order: 8;[^}]*width: 100%;[^}]*margin-top: 15px;/s);
+assert.match(
+  light,
+  /\.migaku-card-back \.migaku-card-notes\s*\{[^}]*order: 10;[^}]*width: 100%;[^}]*padding: 24px 16px;[^}]*border-radius: 16px;[^}]*background: #ede3ff;[^}]*display: flex;[^}]*flex-direction: column;[^}]*gap: 8px;[^}]*user-select: inherit;[^}]*margin: 20px auto;[^}]*text-align: center;[^}]*font-size: \.9375rem;[^}]*min-height: 150px;/s,
+);
+assert.match(
+  light,
+  /\.migaku-card-back \.migaku-card-notes::before\s*\{[^}]*content: "NOTES";[^}]*align-self: center;[^}]*color: #5b43a0;[^}]*font-size: \.75rem;[^}]*font-weight: 700;[^}]*transform: translateY\(-4px\);/s,
+);
+assert.match(
+  light,
+  /\.migaku-card-notes p\s*\{[^}]*min-height: 20px;[^}]*hyphens: auto;/s,
+);
 assert.match(
   light,
   /\.migaku-card-shell > \.migaku-type-toggle\s*\{[^}]*position: static;[^}]*align-self: center;[^}]*margin: 4px auto 0;[^}]*transform: none;[^}]*color: rgba\(0 0 90 \/ 60%\);[^}]*background: transparent;[^}]*box-shadow: none;[^}]*font-size: 0;[^}]*font-weight: 400;[^}]*opacity: \.5;/s,
@@ -337,6 +376,14 @@ assert.match(
 assert.match(
   dark,
   /\.ankidroid_dark_mode \.sentence-separator,\s*\.nightMode \.sentence-separator\s*\{[^}]*border-color: rgba\(255 255 255 \/ 19%\);/s,
+);
+assert.match(
+  dark,
+  /\.ankidroid_dark_mode \.migaku-card-notes,\s*\.nightMode \.migaku-card-notes\s*\{[^}]*background: #36206d;/s,
+);
+assert.match(
+  dark,
+  /\.ankidroid_dark_mode \.migaku-card-notes::before,\s*\.nightMode \.migaku-card-notes::before\s*\{[^}]*color: #b8a3f0;/s,
 );
 assert.match(
   dark,

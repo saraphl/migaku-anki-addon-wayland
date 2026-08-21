@@ -38,9 +38,11 @@
     <div class="migaku-card-definitions migaku-indented">
       <div class="field" data-reading="hover" data-reading-type="bopomofo" data-tone-coloring="hover">{{editable:Definitions}}</div>
     </div>
+    {{#Notes}}
     <div class="migaku-card-notes migaku-indented">
       <div class="field" data-reading="hover" data-reading-type="bopomofo" data-tone-coloring="hover">{{editable:Notes}}</div>
     </div>
+    {{/Notes}}
     <div class="migaku-card-images">{{editable:Images}}</div>
   </div>
 </div>
@@ -67,14 +69,15 @@
     const translation = document.querySelector('.migaku-card-translation');
     if (translationToggle && translation) {
         translationToggle.addEventListener('click', () => {
-            translation.hidden = false;
-            translationToggle.remove();
+            translation.removeAttribute('hidden');
+            translationToggle.parentNode.removeChild(translationToggle);
         });
     }
 
     const typeToggle = document.querySelector('.migaku-type-toggle');
     const typeSelector = document.querySelector('.migaku-typeselect');
-    if (typeof (pycmd) !== "undefined") {
+    const isMobileAnki = typeof (navigator) !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (typeof (pycmd) !== "undefined" && !isMobileAnki) {
         const form = document.querySelector('.migaku-typeselect form');
         const vocabularyToggle = form.elements['vocabulary'];
         const audioToggle = form.elements['audio'];
