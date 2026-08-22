@@ -18,26 +18,91 @@ jobs:
     steps:
       - name: Set env
         shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        run: |
+          RELEASE_VERSION="${GITHUB_REF#refs/*/}"
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> $GITHUB_ENV
+          echo "ADDON_PATH=dist/Migaku-Wayland-$RELEASE_VERSION.ankiaddon" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Create dist folder
         shell: bash
         run: |
           mkdir dist
-      - name: Set version
+
+      # Runs before the build so a tag with no changelog entry fails immediately, rather than
+      # publishing a release with empty notes.
+      - name: Extract release notes from CHANGELOG.md
         shell: bash
         run: |
-          echo "VERSION_STRING = '${{ env.RELEASE_VERSION }}'" > src/version.py
-      - name: Zip
+          python3 - <<'PY'
+          import os, pathlib, re, sys
+
+          # Fork tags carry a "-wayland" suffix (e.g. "0.6.3-wayland"), but CHANGELOG.md comes
+          # from upstream and its headers are bare versions ("## 0.6.3"). A tag may or may not
+          # carry a leading "v", so accept every form.
+          FORK_SUFFIX = "-wayland"
+
+          tag = os.environ["RELEASE_VERSION"]
+          bare = tag.lstrip("vV")
+          wanted = {tag, bare}
+          if bare.endswith(FORK_SUFFIX):
+              wanted.add(bare[: -len(FORK_SUFFIX)])
+
+          text = pathlib.Path("CHANGELOG.md").read_text(encoding="utf-8")
+          # Split on level-2 headers only: deeper "###" headers belong to a release's body and
+          # must not end the section.
+          sections = re.split(r"^## +", text, flags=re.MULTILINE)[1:]
+
+          body, found = None, []
+          for section in sections:
+              head, _, rest = section.partition("\n")
+              found.append(head.strip())
+              if head.strip() in wanted:
+                  body = rest.strip()
+                  break
+
+          if body is None:
+              sys.exit(f"CHANGELOG.md has no section for tag {tag} (tried: {', '.join(sorted(wanted))}). Found: {', '.join(found) or '(none)'}")
+          if not body:
+              sys.exit(f"The CHANGELOG.md section for tag {tag} is empty.")
+
+          pathlib.Path("dist/release-notes.md").write_text(body + "\n", encoding="utf-8")
+          print(f"Release notes for {tag}:\n\n{body}")
+          PY
+
+      - name: Build .ankiaddon
         shell: bash
         run: |
-          cd src
-          zip -r ../dist/Migaku-Wayland.ankiaddon . -x user_files/\* meta.json
-          cd ..
+          # git archive packs only tracked files, so anything ignored or merely sitting in the
+          # working tree (__pycache__, local edits) cannot reach a release. "HEAD:src" makes
+          # src/ the archive root, which is where Anki expects manifest.json to be. meta.json
+          # and user_files/ are untracked and so already absent; the excludes keep it that way
+          # if either is ever committed.
+          git archive --format=zip -o "$ADDON_PATH" HEAD:src \
+            ':(exclude)user_files' ':(exclude)meta.json' ':(exclude)version.py'
+
+      # version.py is excluded from the archive above because git archive reads the committed
+      # tree, where it is the "git" placeholder. Write the tagged version into the zip instead.
+      - name: Stamp version
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os, zipfile
+
+          version = os.environ["RELEASE_VERSION"]
+          path = os.environ["ADDON_PATH"]
+
+          with zipfile.ZipFile(path, "a", zipfile.ZIP_DEFLATED) as archive:
+              archive.writestr("version.py", f'VERSION_STRING = "{version}"\n')
+
+          print(f"Stamped {path} with VERSION_STRING = {version!r}")
+          PY
       - name: Upload artifacts
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/*"
+          # Only *.ankiaddon is uploaded as an artifact, so the notes can share dist/
+          # without being attached to the release as a file.
+          artifacts: "dist/*.ankiaddon"
+          bodyFile: dist/release-notes.md
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}

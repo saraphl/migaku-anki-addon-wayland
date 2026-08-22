@@ -20,6 +20,8 @@ __pycache__/
 
 tmp/
 .worktrees/
+dist/
+.changeset/
 
 # Node
 node_modules/
