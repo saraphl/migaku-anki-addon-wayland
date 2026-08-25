@@ -3,16 +3,19 @@
 import argparse
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import zipfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOT = ROOT / "src"
-DEFAULT_OUTPUT = ROOT / "dist" / "Migaku.ankiaddon"
+DIST_ROOT = ROOT / "dist"
 VERSION_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._+-]*\Z")
+BUILD_TIMESTAMP_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}--\d{4}\Z")
 
 
 def get_version():
@@ -32,6 +35,21 @@ def get_version():
     return version
 
 
+def get_default_output(version, build_timestamp=None):
+    build_timestamp = build_timestamp or datetime.now(timezone.utc).strftime("%Y-%m-%d--%H%M")
+    if not BUILD_TIMESTAMP_PATTERN.fullmatch(build_timestamp): raise ValueError(f"Invalid build timestamp: {build_timestamp!r}")
+    archive_version = version[1:] if version.startswith("v") else version
+    return DIST_ROOT / f"Migaku-Anki-Addon-v{archive_version}--{build_timestamp}.ankiaddon"
+
+
+def get_output_path(output_arg, version, build_timestamp=None):
+    default_output = get_default_output(version, build_timestamp)
+    output_path = output_arg or default_output
+    if not output_path.is_absolute(): output_path = ROOT / output_path
+    if default_output.parent.resolve() in output_path.resolve().parents and output_path.name != default_output.name: raise ValueError(f"Archives written to dist must use {default_output.name}")
+    return output_path
+
+
 def should_skip(path):
     relative_path = path.relative_to(SOURCE_ROOT)
     return (
@@ -43,6 +61,7 @@ def should_skip(path):
 
 
 def build(output_path, version):
+    if DIST_ROOT.exists(): shutil.rmtree(DIST_ROOT)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with tempfile.NamedTemporaryFile(
@@ -70,10 +89,11 @@ def build(output_path, version):
 
 def main():
     parser = argparse.ArgumentParser(description="Build a Migaku Anki add-on archive")
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--build-timestamp")
     args = parser.parse_args()
     version = get_version()
-    output_path = args.output if args.output.is_absolute() else ROOT / args.output
+    output_path = get_output_path(args.output, version, args.build_timestamp)
     build(output_path, version)
     print(f"Built {output_path} ({version})")
 

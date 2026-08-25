@@ -175,6 +175,11 @@ const getLayout = (client) => evaluate(client, `(() => {
   const rect = ({ x, y, width, height }) => ({ x, y, width, height })
   return {
     button: rect(buttonRect),
+    buttonBorder: {
+      style: buttonStyle.borderTopStyle,
+      width: buttonStyle.borderTopWidth,
+    },
+    buttonColor: buttonStyle.color,
     hovered: button.matches(':hover'),
     opacity: buttonStyle.opacity,
     buttonTypography: {
@@ -204,6 +209,14 @@ const getLayout = (client) => evaluate(client, `(() => {
 
 const scrollToggleIntoView = (client) => evaluate(client, `document.querySelector('iframe').contentDocument.querySelector('.migaku-card-shell > .migaku-type-toggle').scrollIntoView({ block: 'center' })`)
 
+const installAnkiReviewerHoverFixture = (client) => evaluate(client, `(() => {
+  const cardDocument = document.querySelector('iframe').contentDocument
+  const style = cardDocument.createElement('style')
+  style.dataset.ankiReviewerHoverFixture = ''
+  style.textContent = 'button:hover { border: 1px solid rgb(20, 20, 20); }'
+  cardDocument.head.append(style)
+})()`)
+
 const stopProcess = async (childProcess) => {
   if (childProcess.exitCode !== null || childProcess.signalCode !== null) return
   const exited = new Promise((resolve) => childProcess.once('exit', resolve))
@@ -226,6 +239,10 @@ const assertNoHoverShift = async (client, label) => {
   await wait(150)
   const after = await getLayout(client)
   assert.strictEqual(after.hovered, true, `${label} hover was not activated`)
+  assert.strictEqual(before.opacity, '1', `${label} should not use composited opacity`)
+  assert.strictEqual(after.opacity, before.opacity, `${label} opacity shifts on hover`)
+  assert.deepStrictEqual(after.buttonBorder, before.buttonBorder, `${label} gains an Anki reviewer border on hover`)
+  assert.notStrictEqual(after.buttonColor, before.buttonColor, `${label} hover color should change`)
   assert.deepStrictEqual(after.button, before.button, `${label} button shifts on hover`)
   assert.deepStrictEqual(after.buttonTypography, before.buttonTypography, `${label} button typography shifts on hover`)
   assert.deepStrictEqual(after.shell, before.shell, `${label} card shell shifts on hover`)
@@ -276,6 +293,39 @@ const assertMobileReadingSpacing = async (client) => {
     metrics.height <= metrics.lineHeight * 2.2,
     `mobile reading lines are excessively spaced (${metrics.height}px at ${metrics.lineHeight}px line height)`,
   )
+}
+
+const assertEnglishReadingWordsStayIntact = async (client, previewUrl) => {
+  await client.send('Emulation.setDeviceMetricsOverride', {
+    width: 868,
+    height: 441,
+    deviceScaleFactor: 1,
+    mobile: false,
+  })
+  await loadPreview(client, `${previewUrl}/preview?language=en&side=back&fixture=sentence&theme=dark`)
+  await evaluate(client, `document.querySelector('iframe').contentDocument.fonts.ready`)
+  const baseRectCount = await evaluate(client, `(() => {
+    const sentence = document.querySelector('iframe').contentDocument.querySelector('.migaku-card-sentence')
+    const field = sentence.querySelector('.field')
+    const tokens = ['And', 'I', 'try', 'to', 'wake', 'up', 'at', '8a.m.', 'every', 'single', 'day']
+    field.replaceChildren()
+    tokens.forEach((token, index) => {
+      const ruby = document.createElement('ruby')
+      const reading = document.createElement('rt')
+      ruby.dataset.token = token
+      ruby.append(token)
+      reading.textContent = token.toLowerCase().replace(/[^a-z]/g, '')
+      ruby.append(reading)
+      field.append(ruby)
+      field.append(index === tokens.length - 1 ? '.' : ' ')
+    })
+    sentence.style.width = '520px'
+    const single = sentence.querySelector('ruby[data-token="single"]')
+    const baseRange = document.createRange()
+    baseRange.selectNode(single.firstChild)
+    return baseRange.getClientRects().length
+  })()`)
+  assert.strictEqual(baseRectCount, 1, 'English reading base word "single" should not split across lines')
 }
 
 const assertWebkitRubyLayout = async (client, previewUrl) => {
@@ -336,12 +386,14 @@ const run = async () => {
         side.dispatchEvent(new Event('change', { bubbles: true }))
       })()`)
       await waitForCard(client)
+      await installAnkiReviewerHoverFixture(client)
       await assertNoHoverShift(client, 'Customize front of card')
       await evaluate(client, `document.querySelector('iframe').contentDocument.querySelector('.migaku-card-shell > .migaku-type-toggle').click()`)
       await wait(150)
       await assertNoHoverShift(client, 'Dismiss')
       await assertMobileControlsHidden(client, previewUrl)
       await assertMobileReadingSpacing(client)
+      await assertEnglishReadingWordsStayIntact(client, previewUrl)
       await assertWebkitRubyLayout(client, previewUrl)
       } finally {
         client.close()

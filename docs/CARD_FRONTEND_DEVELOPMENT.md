@@ -193,10 +193,12 @@ between a reading and its base text. Chromium retains native ruby rendering. At
 the 520 px mobile breakpoint, wrapped sentences use a 1.7 line height
 while the target-word line box remains at 1.
 The card-type controls
-also start hidden. The half-opacity `Customize front of card` button remains in place,
+also start hidden. The muted `Customize front of card` button remains in place,
 changes its text to `Dismiss`, and reveals a panel beneath it.
 The trigger is intentionally text-only in both themes: it has no surface fill or
-button elevation, and only gains an underline and full opacity on hover.
+button elevation. Hover strengthens its text color without changing the element's
+opacity, and explicitly suppresses Anki's reviewer hover border so the trigger's
+box remains fixed while its label and panel state change.
 The panel contains
 two left-aligned on/off controls beneath a `Customize front of card` heading at
 `1.25rem`.
