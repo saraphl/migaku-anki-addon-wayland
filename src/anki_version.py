@@ -13,7 +13,7 @@ recommended_version = ".".join(str(x) for x in recommended_version_tuple)
 recommended_version_lower = ".".join(str(x) for x in recommended_version_lower_tuple)
 
 # Current recommended version using Anki's year.month.patch versioning scheme
-new_recommended_version_tuple = (26, 9, 2)
+new_recommended_version_tuple = (26, 9, 3)
 new_recommended_version = (
     f"{new_recommended_version_tuple[0]}.{new_recommended_version_tuple[1]:02d}.{new_recommended_version_tuple[2]}"
 )
